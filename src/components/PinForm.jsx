@@ -1,84 +1,87 @@
-import React, { useState } from 'react';
-import { MapPin, X, Spinner } from '@phosphor-icons/react';
+import { useState } from 'react';
+import { MapPin, X, Spinner } from 'phosphor-react';
 
 const PinForm = ({ onSubmit, onCancel, location }) => {
-  const [remark, setRemark] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [note, setNote] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const submitNote = async (e) => {
     e.preventDefault();
-    if (remark.trim()) {
-      setIsSubmitting(true);
-      await onSubmit(remark.trim());
-      setIsSubmitting(false);
-    }
+    const trimmedNote = note.trim();
+    if (!trimmedNote) return;
+
+    setIsAdding(true);
+    await onSubmit(trimmedNote);
+    setIsAdding(false);
   };
 
-  const handleCancel = () => {
-    setRemark('');
+  const resetAndClose = () => {
+    setNote('');
     onCancel();
   };
 
   return (
-    <div className="fixed inset-0 bg-white/20 g-opacity-50 flex items-center justify-center z-[2000]">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center">
+      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mx-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-            <MapPin className="w-6 h-6 mr-2 text-red-500" weight="fill" />
-            Add New Pin
+          <h2 className="text-xl font-semibold text-zinc-800 flex items-center gap-2">
+            <MapPin />
+            Drop a Pin
           </h2>
           <button
-            onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            onClick={resetAndClose}
+            className="text-zinc-400 hover:text-zinc-600 transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-6 h-6 text-red-500" />
           </button>
         </div>
 
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Location:</strong> {location?.lat.toFixed(6)}, {location?.lng.toFixed(6)}
+        <div className="mb-4 p-3 bg-blue-50 rounded-md">
+          <p className="text-sm text-blue-500">
+            <strong>Coordinates:</strong>{' '}
+            {location?.lat.toFixed(6)}, {location?.lng.toFixed(6)}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={submitNote}>
           <div className="mb-4">
-            <label htmlFor="remark" className="block text-sm font-medium text-gray-700 mb-2">
-              Remark / Notes *
+            <label htmlFor="note" className="block text-sm font-medium text-zinc-700 mb-2">
+              Your Note *
             </label>
             <textarea
-              id="remark"
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-              placeholder="Enter your notes about this location..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              id="note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Describe this place or why it matters..."
+              className="w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows="3"
               required
               autoFocus
             />
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex gap-3">
             <button
               type="button"
-              onClick={handleCancel}
-              className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-              disabled={isSubmitting}
+              onClick={resetAndClose}
+              disabled={isAdding}
+              className="flex-1 px-4 py-2 text-zinc-700 bg-zinc-100 hover:bg-red-500 hover:text-white rounded-lg transition-colors duration-300"
             >
               Cancel
             </button>
+
             <button
               type="submit"
-              disabled={!remark.trim() || isSubmitting}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              disabled={!note.trim() || isAdding}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-zinc-300 disabled:cursor-not-allowed transition-colors"
             >
-              {isSubmitting ? (
+              {isAdding ? (
                 <span className="flex items-center justify-center">
-                  <Spinner className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                  Adding...
+                  <Spinner size={16} className="animate-spin mr-2 text-blue-200" />
+                  Saving...
                 </span>
               ) : (
-                'Add Pin'
+                'Save Pin'
               )}
             </button>
           </div>
@@ -88,4 +91,4 @@ const PinForm = ({ onSubmit, onCancel, location }) => {
   );
 };
 
-export default PinForm; 
+export default PinForm;

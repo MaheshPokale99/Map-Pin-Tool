@@ -1,54 +1,59 @@
-
-
 import { useState, useEffect } from 'react';
 import MapComponent from './components/MapComponent';
 import Sidebar from './components/Sidebar';
 
 const App = () => {
-  
-  const [pins, setPins] = useState(() => {
-    const savedPins = localStorage.getItem('mapPins');
-    return savedPins ? JSON.parse(savedPins) : [];
-  });
-
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pinIdToDelete, setPinIdToDelete] = useState(null);
   const [selectedPin, setSelectedPin] = useState(null);
+
+  const [pins, setPins] = useState(() => {
+    const saved = localStorage.getItem('mapPins');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
     localStorage.setItem('mapPins', JSON.stringify(pins));
   }, [pins]);
 
-  const addPin = (newPin) => {
-    setPins(prevPins => [...prevPins, { ...newPin, id: Date.now() }]);
+  const handleAddPin = (newPin) => {
+    const pinWithId = { ...newPin, id: Date.now() };
+    setPins((prev) => [...prev, pinWithId]);
   };
 
-  const deletePin = (pinId) => {
-    setPins(prevPins => prevPins.filter(pin => pin.id !== pinId));
-    if (selectedPin?.id === pinId) {
+  const handleDeletePin = (id) => {
+    setPins((prev) => prev.filter((pin) => pin.id !== id));
+    if (selectedPin?.id === id) {
       setSelectedPin(null);
     }
   };
 
-  const selectPin = (pin) => {
+  const handleSelectPin = (pin) => {
     setSelectedPin(pin);
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar 
-        pins={pins} 
-        onPinSelect={selectPin}
-        onPinDelete={deletePin}
-        selectedPin={selectedPin}
-      />
-      <MapComponent 
+    <div className="flex h-screen bg-zinc-100">
+      <Sidebar
         pins={pins}
-        onAddPin={addPin}
         selectedPin={selectedPin}
-        onPinSelect={selectPin}
+        onPinSelect={handleSelectPin}
+        setShow={setShowConfirm}
+        setPinId={setPinIdToDelete}
+      />
+
+      <MapComponent
+        pins={pins}
+        onAddPin={handleAddPin}
+        selectedPin={selectedPin}
+        onPinSelect={handleSelectPin}
+        show={showConfirm}
+        setShow={setShowConfirm}
+        pinId={pinIdToDelete}
+        onPinDelete={handleDeletePin}
       />
     </div>
   );
 };
 
 export default App;
-
